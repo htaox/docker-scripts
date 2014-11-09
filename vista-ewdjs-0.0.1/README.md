@@ -6,13 +6,13 @@ Find out [more](http://robtweed.wordpress.com/2014/03/02/ewd-js-and-vista-lets-g
 
 ####Build the image
 <pre>
-sudo docker build -t="dockerfile/vista_ewdjs-0.0.1" github.com/htaox/docker-scripts/vista_ewdjs-0.0.1
+sudo docker build -t="htaox/vista_ewdjs-0.0.1" github.com/htaox/docker-scripts/tree/add-hbase/vista-ewdjs-0.0.1
 </pre>
 
 ####Deploy with persistence
 <pre>
 sudo mkdir -p /opt/vista_ewdjs
-docker run -d -p 27017:27017 -v /opt/vista_ewdjs:/data/db --name vista_ewdjs dockerfile/vista_ewdjs-0.0.1
+docker run -d -p 27017:27017 -v /opt/vista_ewdjs:/data/db --name vista_ewdjs htaox/vista_ewdjs-0.0.1
 </pre>
 
 ####Inspect
