@@ -11,7 +11,7 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt
 
 # install a few other useful packages
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev build-essential
+##RUN apt-get install -y libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev build-essential
 RUN apt-get install -y git-core
 
 # Docker messes up /etc/hosts and adds two entries for 127.0.0.1
