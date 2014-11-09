@@ -10,7 +10,9 @@ VOLUME ["/data"]
 RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
 
 # install a few other useful packages
-RUN apt-get update && apt-get upgrade -y && apt-get install -y git
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev build-essential
+RUN apt-get install -y git-core
 
 # Docker messes up /etc/hosts and adds two entries for 127.0.0.1
 # we try to recover from that by giving /etc/resolv.conf and therefore

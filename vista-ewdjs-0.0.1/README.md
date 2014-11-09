@@ -6,7 +6,11 @@ Find out [more](http://robtweed.wordpress.com/2014/03/02/ewd-js-and-vista-lets-g
 
 ####Build the image
 <pre>
-sudo docker build -t="htaox/vista_ewdjs-0.0.1" github.com/htaox/docker-scripts/tree/add-hbase/vista-ewdjs-0.0.1
+git clone https://github.com/htaox/docker-scripts.git
+cd docker_scripts
+cd vista-ewdjs-0.0.1
+IMAGE_PREFIX=htaox/
+sudo ./build
 </pre>
 
 ####Deploy with persistence
