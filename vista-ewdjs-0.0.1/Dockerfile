@@ -1,13 +1,14 @@
 # Base Ubuntu Precise 12.04 LTS image
 # Based on: http://robtweed.wordpress.com/2014/03/02/ewd-js-and-vista-lets-get-started/
-FROM ubuntu:precise
+FROM ubuntu:12.04
 MAINTAINER htaox htaox@hotmail.com
 
 # Setup a volume for data
 VOLUME ["/data"]
 
 # Set correct source list
-RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
+RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list && \
+    echo 'deb http://archive.ubuntu.com/ubuntu precise-updates universe' >> /etc/apt/sources.list
 
 # install a few other useful packages
 RUN apt-get -y update
