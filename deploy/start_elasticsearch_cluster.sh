@@ -11,6 +11,7 @@ WORKER_HOSTNAME=elasticsearch-worker
 # starts the elasticsearch master container
 function start_master() {
     echo "starting master container"
+
     if [ "$DEBUG" -gt 0 ]; then
         echo sudo docker run -d --dns $NAMESERVER_IP -h ${MASTER_HOSTNAME}${DOMAINNAME} $VOLUME_MAP $1:$2
     fi
@@ -33,13 +34,28 @@ function start_workers() {
 	
 	rm -f $ELASTICSERVERS
 
+    # split the volume syntax by :, then use the array to build new volume map
+    IFS=' ' read -ra VOLUME_MAP_ARR_PRE <<< "$VOLUME_MAP"
+    IFS=':' read -ra VOLUME_MAP_ARR <<< "${VOLUME_MAP_ARR_PRE[1]}"
+
     for i in `seq 1 $NUM_WORKERS`; do
         echo "starting worker container"
 	hostname="${WORKER_HOSTNAME}${i}${DOMAINNAME}"
-        if [ "$DEBUG" -gt 0 ]; then
-	    echo sudo docker run -d --dns $NAMESERVER_IP -h $hostname $VOLUME_MAP $1:$2
+        # rename $VOLUME_MAP by adding worker number as suffix if it is not empty
+        WORKER_VOLUME_MAP=$VOLUME_MAP
+        if [ "$VOLUME_MAP" ]; then
+            WORKER_VOLUME_DIR="${VOLUME_MAP_ARR[0]}-${i}"
+            echo "Creating directory ${WORKER_VOLUME_DIR}"
+            mkdir -p "${WORKER_VOLUME_DIR}"
+            # volume will now be like /host/dir/data-1:/data if original volume was /home/dir/data
+            WORKER_VOLUME_MAP="-v ${WORKER_VOLUME_DIR}:${VOLUME_MAP_ARR[1]}"            
         fi
-	WORKER=$(sudo docker run -d --dns $NAMESERVER_IP -h $hostname $VOLUME_MAP $1:$2)
+        echo "WORKER ${i} VOLUME_MAP => ${WORKER_VOLUME_MAP}"
+
+        if [ "$DEBUG" -gt 0 ]; then
+	    echo sudo docker run -d --dns $NAMESERVER_IP -h $hostname $WORKER_VOLUME_MAP $1:$2
+        fi
+	WORKER=$(sudo docker run -d --dns $NAMESERVER_IP -h $hostname $WORKER_VOLUME_MAP $1:$2)
 
         if [ "$WORKER" = "" ]; then
             echo "error: could not start worker container from image $1:$2"
