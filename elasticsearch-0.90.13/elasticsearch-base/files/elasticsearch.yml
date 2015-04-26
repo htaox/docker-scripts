@@ -169,7 +169,9 @@ node.data: @DATA@
 #
 # path.plugins: /path/to/plugins
 
-
+path:
+  logs: /data/log
+  data: /data/data
 #################################### Plugin ###################################
 
 # If a plugin listed here is not installed for current node, the node will not start.

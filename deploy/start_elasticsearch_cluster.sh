@@ -12,6 +12,13 @@ WORKER_HOSTNAME=elasticsearch-worker
 function start_master() {
     echo "starting master container"
 
+    # split the volume syntax by :, then use the array to build new volume map
+    IFS=' ' read -ra VOLUME_MAP_ARR_PRE <<< "$VOLUME_MAP"
+    IFS=':' read -ra VOLUME_MAP_ARR <<< "${VOLUME_MAP_ARR_PRE[1]}"
+    MASTER_VOLUME_DIR="${VOLUME_MAP_ARR[0]}"
+    echo "Creating directory ${MASTER_VOLUME_DIR}"
+    mkdir -p "${MASTER_VOLUME_DIR}"    
+
     if [ "$DEBUG" -gt 0 ]; then
         echo sudo docker run -d --dns $NAMESERVER_IP -h ${MASTER_HOSTNAME}${DOMAINNAME} $VOLUME_MAP $1:$2
     fi
