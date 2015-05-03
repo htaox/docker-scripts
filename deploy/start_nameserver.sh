@@ -8,13 +8,15 @@ BASEDIR=$(cd $(dirname $0); pwd)
 
 # starts the dnsmasq nameserver
 function start_nameserver() {
-    DNSDIR="/tmp/dnsdir_$RANDOM"
+    DNSDIR="/opt/docker-dns/dnsdir_$RANDOM"
     #DNSDIR="${BASEDIR}"
     DNSFILE="${DNSDIR}/0hosts"
-    mkdir $DNSDIR
+    sudo mkdir -p $DNSDIR
 
-    rm -rf /tmp/DNSMASQ
-    echo $DNSFILE > "/tmp/DNSMASQ" 
+    sudo rm -rf /opt/docker-dns/DNSMASQ
+    sudo touch /opt/docker-dns/DNSMASQ
+    echo $DNSFILE | sudo tee --append /opt/docker-dns/DNSMASQ
+    sudo chmod 777 /opt/docker-dns/DNSMASQ 
 
     echo "starting nameserver container"
     if [ "$DEBUG" -gt 0 ]; then
@@ -30,9 +32,13 @@ function start_nameserver() {
     echo "started nameserver container:  $NAMESERVER"
     echo "DNS host->IP file mapped:      $DNSFILE"
     sleep 2
+
+    sudo chmod -R 777 $DNSDIR
+
     NAMESERVER_IP=$(sudo docker logs $NAMESERVER 2>&1 | egrep '^NAMESERVER_IP=' | awk -F= '{print $2}' | tr -d -c "[:digit:] .")
     echo "NAMESERVER_IP:                 $NAMESERVER_IP"
     echo "address=\"/nameserver/$NAMESERVER_IP\"" > $DNSFILE
+
 }
 
 # contact nameserver container and resolve IP address (used for checking whether nameserver has registered
@@ -96,7 +102,7 @@ function check_start_nameserver() {
         # start_nameserver $NAMESERVER_IMAGE
         wait_for_nameserver
     else
-        HOSTFILE=$(cat /tmp/DNSMASQ)
+        HOSTFILE=$(cat /opt/docker-dns/DNSMASQ)
         DNSFILE=$HOSTFILE
         NAMESERVER_IP=$(cat $HOSTFILE | grep nameserver | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}")
         echo "NAMESERVER_IP: $NAMESERVER_IP"        
