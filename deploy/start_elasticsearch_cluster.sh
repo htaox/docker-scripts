@@ -20,9 +20,9 @@ function start_master() {
     mkdir -p "${MASTER_VOLUME_DIR}"    
 
     if [ "$DEBUG" -gt 0 ]; then
-        echo sudo docker run -d --dns $NAMESERVER_IP -h ${MASTER_HOSTNAME}${DOMAINNAME} $VOLUME_MAP $1:$2
+        echo sudo docker run -d --restart on-failure:10 --dns $NAMESERVER_IP -h ${MASTER_HOSTNAME}${DOMAINNAME} $VOLUME_MAP $1:$2
     fi
-    MASTER=$(sudo docker run -d --dns $NAMESERVER_IP -h ${MASTER_HOSTNAME}${DOMAINNAME} $VOLUME_MAP $1:$2)
+    MASTER=$(sudo docker run -d --restart on-failure:10 --dns $NAMESERVER_IP -h ${MASTER_HOSTNAME}${DOMAINNAME} $VOLUME_MAP $1:$2)
 
     if [ "$MASTER" = "" ]; then
         echo "error: could not start master container from image $1:$2"
@@ -31,6 +31,9 @@ function start_master() {
 
     echo "started master container:      $MASTER"
     sleep 3
+    echo "Removing $MASTER_HOSTNAME from $DNSFILE"
+    sed -i "/$MASTER_HOSTNAME/d" "$DNSFILE"
+
     MASTER_IP=$(sudo docker logs $MASTER 2>&1 | egrep '^MASTER_IP=' | awk -F= '{print $2}' | tr -d -c "[:digit:] .")
     echo "MASTER_IP:                     $MASTER_IP"
     echo "address=\"/$MASTER_HOSTNAME/$MASTER_IP\"" >> $DNSFILE
@@ -60,9 +63,9 @@ function start_workers() {
         echo "WORKER ${i} VOLUME_MAP => ${WORKER_VOLUME_MAP}"
 
         if [ "$DEBUG" -gt 0 ]; then
-	    echo sudo docker run -d --dns $NAMESERVER_IP -h $hostname $WORKER_VOLUME_MAP $1:$2
+	    echo sudo docker run -d --restart on-failure:10 --dns $NAMESERVER_IP -h $hostname $WORKER_VOLUME_MAP $1:$2
         fi
-	WORKER=$(sudo docker run -d --dns $NAMESERVER_IP -h $hostname $WORKER_VOLUME_MAP $1:$2)
+	WORKER=$(sudo docker run -d --restart on-failure:10 --dns $NAMESERVER_IP -h $hostname $WORKER_VOLUME_MAP $1:$2)
 
         if [ "$WORKER" = "" ]; then
             echo "error: could not start worker container from image $1:$2"
@@ -71,7 +74,10 @@ function start_workers() {
 
 	echo "started worker container:  $WORKER"
 	sleep 3
-	WORKER_IP=$(sudo docker logs $WORKER 2>&1 | egrep '^WORKER_IP=' | awk -F= '{print $2}' | tr -d -c "[:digit:] .")
+	echo "Removing $hostname from $DNSFILE"
+    sed -i "/$hostname/d" "$DNSFILE"
+
+    WORKER_IP=$(sudo docker logs $WORKER 2>&1 | egrep '^WORKER_IP=' | awk -F= '{print $2}' | tr -d -c "[:digit:] .")
 	echo "address=\"/$hostname/$WORKER_IP\"" >> $DNSFILE
     echo "WORKER #${i} IP: $WORKER_IP" 
     echo $WORKER_IP >> $ELASTICSERVERS

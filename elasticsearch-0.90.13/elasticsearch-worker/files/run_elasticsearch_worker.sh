@@ -8,6 +8,7 @@ IP=$(ip -o -4 addr list eth0 | perl -n -e 'if (m{inet\s([\d\.]+)\/\d+\s}xms) { p
 echo "WORKER_IP=$IP"
 
 sed -i "s/@IP@/$IP/g" $ES_HOME/conf/elasticsearch.yml
+#sed -i "s|^network.host:.*|network.host: $IP|" $ES_HOME/conf/elasticsearch.yml
 
 sed -i "s/@MASTER@/false/g" $ES_HOME/conf/elasticsearch.yml
 sed -i "s/@DATA@/true/g" $ES_HOME/conf/elasticsearch.yml
