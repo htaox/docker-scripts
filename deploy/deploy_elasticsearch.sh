@@ -80,6 +80,10 @@ function check_elasticsearch() {
 
 }
 
+function remove_stopped_containers() {
+    sudo docker ps -a | grep elasticsearch | awk '{print $1}' | xargs --no-run-if-empty docker rm
+}
+
 check_root
 
 if [[ "$#" -eq 0 ]]; then
@@ -104,6 +108,8 @@ check_elasticsearch
 if [ $NUM_ELASTIC_MASTER -gt 0 ]; then
     exit 0
 fi
+
+remove_stopped_containers
 
 start_master ${image_name}-master $image_version
 wait_for_master
