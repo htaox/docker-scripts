@@ -5,7 +5,7 @@
 #
  
 # Pull base image.
-FROM dockerfile/java:oracle-java7
+FROM htaox/oracle-java8:latest
  
 # Install ElasticSearch.
 RUN cd /tmp && wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.90.13.tar.gz
