@@ -6,6 +6,9 @@
  
 # Pull base image.
 FROM htaox/oracle-java8:latest
+
+RUN apt-get update
+RUN apt-get install sudo
  
 # Install ElasticSearch.
 RUN cd /tmp && wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.90.13.tar.gz
